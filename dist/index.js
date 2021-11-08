@@ -24,6 +24,8 @@ const connect_redis_1 = __importDefault(require("connect-redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const constants_1 = require("./constants");
 const ioredis_1 = __importDefault(require("ioredis"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, mongo_1.connectDatabase)();
     const app = (0, express_1.default)();
@@ -42,7 +44,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const RedisStore = (0, connect_redis_1.default)(express_session_1.default);
     const redis = new ioredis_1.default();
     app.use((0, express_session_1.default)({
-        name: 'qid',
+        name: process.env.COOKIE_NAME,
         store: new RedisStore({
             client: redis,
             disableTouch: true,
@@ -54,7 +56,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             secure: constants_1.__prod__,
         },
         saveUninitialized: false,
-        secret: "fasfaseasfwevwecasd",
+        secret: process.env.REDIS_SECRET,
         resave: false,
     }));
     app.use((0, cors_1.default)({

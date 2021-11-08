@@ -30,6 +30,7 @@ const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
 const UsernamePasswordInput_1 = require("../types/UsernamePasswordInput");
 const user_1 = require("../models/user");
+const isAuth_1 = require("../middleware/isAuth");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -187,6 +188,32 @@ let UserResolver = class UserResolver {
             return user;
         });
     }
+    editUser({ req }, email, phoneNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (email.length <= 2) {
+                return {
+                    errors: [
+                        {
+                            field: "email",
+                            message: "Invalid email",
+                        },
+                    ],
+                };
+            }
+            if (!email.includes("@")) {
+                return {
+                    errors: [
+                        {
+                            field: "email",
+                            message: "Invalid email",
+                        },
+                    ],
+                };
+            }
+            const user = yield user_1.UserModel.findOneAndUpdate({ _id: req.session.userId }, { email, phoneNumber });
+            return user;
+        });
+    }
 };
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse),
@@ -219,6 +246,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "me", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => UserResponse),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Ctx)()),
+    __param(1, (0, type_graphql_1.Arg)("email")),
+    __param(2, (0, type_graphql_1.Arg)("phoneNumber")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Number]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "editUser", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);

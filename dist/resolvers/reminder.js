@@ -49,6 +49,18 @@ let ReminderResolver = class ReminderResolver {
             return reminders;
         });
     }
+    reminder(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reminder = yield reminder_1.ReminderModel.findById(id);
+            return reminder;
+        });
+    }
+    updateReminder(id, text, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reminder = yield reminder_1.ReminderModel.findOneAndUpdate({ _id: id }, { date, text });
+            return reminder;
+        });
+    }
 };
 __decorate([
     (0, type_graphql_1.Mutation)(() => Reminder_1.Reminder),
@@ -68,6 +80,24 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ReminderResolver.prototype, "userReminders", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => Reminder_1.Reminder),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReminderResolver.prototype, "reminder", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Reminder_1.Reminder),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("id")),
+    __param(1, (0, type_graphql_1.Arg)("text")),
+    __param(2, (0, type_graphql_1.Arg)("date")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Date]),
+    __metadata("design:returntype", Promise)
+], ReminderResolver.prototype, "updateReminder", null);
 ReminderResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], ReminderResolver);

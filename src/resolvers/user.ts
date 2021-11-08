@@ -7,12 +7,14 @@ import {
   ObjectType,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 import argon2 from "argon2";
 import { UsernamePasswordInput } from "../types/UsernamePasswordInput";
 import { MyContext } from "../types";
 import { UserModel } from "../models/user";
-import { sendMessage } from "../utils/sendMessage";
+import { isAuth } from "../middleware/isAuth";
+//import { sendMessage } from "../utils/sendMessage";
 
 @ObjectType()
 class FieldError {
@@ -169,4 +171,36 @@ export class UserResolver {
     const user = await UserModel.findOne().where(userId);
     return user;
   }
+
+  @Mutation(() => UserResponse)
+  @UseMiddleware(isAuth)
+  async editUser(
+    @Ctx() { req }: MyContext,
+    @Arg("email") email: string,
+    @Arg("phoneNumber") phoneNumber: number,
+  ) {
+    if (email.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "email",
+            message: "Invalid email",
+          },
+        ],
+      };
+    }
+    if (!email.includes("@")) {
+      return {
+        errors: [
+          {
+            field: "email",
+            message: "Invalid email",
+          },
+        ],
+      };
+    }
+    const user = await UserModel.findOneAndUpdate({_id:req.session.userId},{ email,phoneNumber})
+    return user;
+  }
+  
 }
