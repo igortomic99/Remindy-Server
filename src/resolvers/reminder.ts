@@ -3,6 +3,9 @@ import { Arg, Ctx, Mutation, Query, Resolver, UseMiddleware } from "type-graphql
 import { ReminderModel } from "../models/reminder";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
+import { sendMessage } from "../utils/sendMessage";
+import {scheduleJob} from 'node-schedule';
+import { UserModel } from "../models/user";
 
 @Resolver()
 export class ReminderResolver {
@@ -23,6 +26,11 @@ export class ReminderResolver {
       userID
     });
     await reminder.save();
+    const user = await UserModel.findOne().where({_id:userID});
+    const phoneNumber = user?.phoneNumber as any;
+    const scheduleSend = scheduleJob(date, ()=>{
+      sendMessage("Remindy",phoneNumber,text)
+    });
     return reminder;
   }
 
@@ -32,7 +40,7 @@ export class ReminderResolver {
     @Ctx() { req }: MyContext,
   ){
     const userID = req.session.userId as any;
-    const reminders = await ReminderModel.find().where(userID);
+    const reminders = await ReminderModel.find().where({_id:userID});
     return reminders;
   }
 

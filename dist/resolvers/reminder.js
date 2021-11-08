@@ -26,6 +26,9 @@ const Reminder_1 = require("../types/Reminder");
 const type_graphql_1 = require("type-graphql");
 const reminder_1 = require("../models/reminder");
 const isAuth_1 = require("../middleware/isAuth");
+const sendMessage_1 = require("../utils/sendMessage");
+const node_schedule_1 = require("node-schedule");
+const user_1 = require("../models/user");
 let ReminderResolver = class ReminderResolver {
     addReminder(text, date, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,13 +42,18 @@ let ReminderResolver = class ReminderResolver {
                 userID
             });
             yield reminder.save();
+            const user = yield user_1.UserModel.findOne().where({ _id: userID });
+            const phoneNumber = user === null || user === void 0 ? void 0 : user.phoneNumber;
+            const scheduleSend = (0, node_schedule_1.scheduleJob)(date, () => {
+                (0, sendMessage_1.sendMessage)("Remindy", phoneNumber, text);
+            });
             return reminder;
         });
     }
     userReminders({ req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const userID = req.session.userId;
-            const reminders = yield reminder_1.ReminderModel.find().where(userID);
+            const reminders = yield reminder_1.ReminderModel.find().where({ _id: userID });
             return reminders;
         });
     }

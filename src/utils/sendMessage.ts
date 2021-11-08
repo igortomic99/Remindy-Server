@@ -1,7 +1,7 @@
 import Vonage from "@vonage/server-sdk";
 import dotenv from "dotenv";
 
-export const sendMessage = async (from: string, to: string, text: string) => {
+export const sendMessage = async (from: string, to: any, text: string) => {
   dotenv.config();
   const vonage = new Vonage({
     apiKey: process.env.API_KEY as string,

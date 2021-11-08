@@ -140,7 +140,7 @@ let UserResolver = class UserResolver {
     }
     login(username, password, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield user_1.UserModel.findOne().where(username);
+            const user = yield user_1.UserModel.findOne().where({ username });
             if (!user) {
                 return {
                     errors: [
@@ -162,7 +162,7 @@ let UserResolver = class UserResolver {
                     ],
                 };
             }
-            req.session.userId = user.id;
+            req.session.userId = user._id;
             return { user };
         });
     }
@@ -184,7 +184,7 @@ let UserResolver = class UserResolver {
             if (!userId) {
                 throw new Error("you are not logged in");
             }
-            const user = yield user_1.UserModel.findOne().where(userId);
+            const user = yield user_1.UserModel.findOne().where({ _id: userId });
             return user;
         });
     }

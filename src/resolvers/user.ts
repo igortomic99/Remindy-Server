@@ -14,7 +14,6 @@ import { UsernamePasswordInput } from "../types/UsernamePasswordInput";
 import { MyContext } from "../types";
 import { UserModel } from "../models/user";
 import { isAuth } from "../middleware/isAuth";
-//import { sendMessage } from "../utils/sendMessage";
 
 @ObjectType()
 class FieldError {
@@ -112,7 +111,7 @@ export class UserResolver {
       }
       console.log(err.message);
     }
-    req.session!.userId = user?._id;
+    req.session.userId = user?._id;
     return { user };
   }
 
@@ -122,7 +121,7 @@ export class UserResolver {
     @Arg("password") password: string,
     @Ctx() { req }: MyContext
   ): Promise<UserResponse | null> {
-    const user = await UserModel.findOne().where(username);
+    const user = await UserModel.findOne().where({username});
     if (!user) {
       return {
         errors: [
@@ -144,7 +143,7 @@ export class UserResolver {
         ],
       };
     }
-    req.session!.userId = user.id;
+    req.session.userId = user._id;
     return { user };
   }
 
@@ -168,7 +167,7 @@ export class UserResolver {
     if (!userId) {
       throw new Error("you are not logged in");
     }
-    const user = await UserModel.findOne().where(userId);
+    const user = await UserModel.findOne().where({_id:userId});
     return user;
   }
 
