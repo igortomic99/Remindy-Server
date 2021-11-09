@@ -9,15 +9,22 @@ import { UserResolver } from "./resolvers/user";
 import connectRedis from "connect-redis";
 import session from "express-session";
 import { __prod__ } from "./constants";
-import Redis from 'ioredis';
+import Redis from "ioredis";
 import dotenv from "dotenv";
 dotenv.config();
+import Stripe from "stripe";
+const stripe = new Stripe(
+  "sk_test_51JtwmdDrQWhNFCjJCpTgdnAUsDJh6DUhn9VxIziNTofvTMxAxmB0eBMCyCQBahvAUWaWq3SrlctNJAyIkbCOH658000iPO3Xel",
+  {
+    apiVersion: "2020-08-27",
+  }
+);
 
 const main = async () => {
   await connectDatabase();
   const app = express();
   const schema = await buildSchema({
-    resolvers: [ReminderResolver,UserResolver],
+    resolvers: [ReminderResolver, UserResolver],
     validate: false,
   });
 

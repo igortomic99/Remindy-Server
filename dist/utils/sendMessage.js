@@ -18,8 +18,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const sendMessage = (from, to, text) => __awaiter(void 0, void 0, void 0, function* () {
     dotenv_1.default.config();
     const vonage = new server_sdk_1.default({
-        apiKey: process.env.API_KEY,
-        apiSecret: process.env.API_SECRET,
+        apiKey: "2fac2ecf",
+        apiSecret: "i8Enh5qOtqgtRMg7",
     });
     vonage.message.sendSms(from, to, text, (err, responseData) => {
         if (err) {
@@ -30,6 +30,7 @@ const sendMessage = (from, to, text) => __awaiter(void 0, void 0, void 0, functi
                 console.log("Message sent successfully.");
             }
             else {
+                console.log(responseData);
                 console.log(`Message failed with error: ${responseData.messages[0]["error-text"]}`);
             }
         }

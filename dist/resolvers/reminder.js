@@ -22,38 +22,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReminderResolver = void 0;
-const Reminder_1 = require("../types/Reminder");
+const cron_1 = require("cron");
 const type_graphql_1 = require("type-graphql");
-const reminder_1 = require("../models/reminder");
 const isAuth_1 = require("../middleware/isAuth");
+const reminder_1 = require("../models/reminder");
+const Reminder_1 = require("../types/Reminder");
 const sendMessage_1 = require("../utils/sendMessage");
-const node_schedule_1 = require("node-schedule");
-const user_1 = require("../models/user");
 let ReminderResolver = class ReminderResolver {
-    addReminder(text, date, { req }) {
+    addReminder(text, date, phoneNumber, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const userID = req.session.userId;
             if (date.getTime() < Date.now()) {
                 throw new Error("wrong date");
             }
-            const reminder = new reminder_1.ReminderModel({
+            let reminder;
+            reminder = new reminder_1.ReminderModel({
                 date,
                 text,
-                userID
+                userID,
             });
+            let sender = "Remindy";
+            let dateI = new Date(date);
             yield reminder.save();
-            const user = yield user_1.UserModel.findOne().where({ _id: userID });
-            const phoneNumber = user === null || user === void 0 ? void 0 : user.phoneNumber;
-            const scheduleSend = (0, node_schedule_1.scheduleJob)(date, () => {
-                (0, sendMessage_1.sendMessage)("Remindy", phoneNumber, text);
-            });
+            let job = new cron_1.CronJob(dateI, () => __awaiter(this, void 0, void 0, function* () {
+                (0, sendMessage_1.sendMessage)(sender, phoneNumber, text);
+                yield reminder_1.ReminderModel.deleteOne().where({ _id: reminder._id });
+            }), null, true);
+            console.log(job);
             return reminder;
         });
     }
     userReminders({ req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const userID = req.session.userId;
-            const reminders = yield reminder_1.ReminderModel.find().where({ _id: userID });
+            const reminders = yield reminder_1.ReminderModel.find().where({ userID });
             return reminders;
         });
     }
@@ -69,15 +71,22 @@ let ReminderResolver = class ReminderResolver {
             return reminder;
         });
     }
+    deleteReminders() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield reminder_1.ReminderModel.deleteMany({});
+            return true;
+        });
+    }
 };
 __decorate([
     (0, type_graphql_1.Mutation)(() => Reminder_1.Reminder),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)("text")),
     __param(1, (0, type_graphql_1.Arg)("date")),
-    __param(2, (0, type_graphql_1.Ctx)()),
+    __param(2, (0, type_graphql_1.Arg)("phoneNumber")),
+    __param(3, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Date, Object]),
+    __metadata("design:paramtypes", [String, Date, String, Object]),
     __metadata("design:returntype", Promise)
 ], ReminderResolver.prototype, "addReminder", null);
 __decorate([
@@ -106,6 +115,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Date]),
     __metadata("design:returntype", Promise)
 ], ReminderResolver.prototype, "updateReminder", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ReminderResolver.prototype, "deleteReminders", null);
 ReminderResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], ReminderResolver);

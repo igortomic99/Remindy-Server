@@ -26,6 +26,10 @@ const constants_1 = require("./constants");
 const ioredis_1 = __importDefault(require("ioredis"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+const stripe_1 = __importDefault(require("stripe"));
+const stripe = new stripe_1.default("sk_test_51JtwmdDrQWhNFCjJCpTgdnAUsDJh6DUhn9VxIziNTofvTMxAxmB0eBMCyCQBahvAUWaWq3SrlctNJAyIkbCOH658000iPO3Xel", {
+    apiVersion: "2020-08-27",
+});
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, mongo_1.connectDatabase)();
     const app = (0, express_1.default)();
