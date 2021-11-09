@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 export const sendMessage = async (from: string, to: string, text: string) => {
   dotenv.config();
   const vonage = new Vonage({
-    apiKey: "2fac2ecf",//process.env.API_KEY as any,
-    apiSecret: "i8Enh5qOtqgtRMg7",//process.env.API_SECRET as any,
+    apiKey: process.env.API_KEY as any,
+    apiSecret: process.env.API_SECRET as any,
   });
   vonage.message.sendSms(from, to, text,(err, responseData) => {
     if (err) {
